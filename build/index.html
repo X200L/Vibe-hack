@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏕️ Retro Adventure - Atari Style Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>🏕️ RETRO ADVENTURE</h1>
+            <p>Classic Atari-style Adventure Game</p>
+        </header>
+
+        <div id="menu-screen" class="screen active">
+            <div class="menu-card">
+                <h2>Welcome, Adventurer!</h2>
+                <div class="instructions">
+                    <p>🎯 <strong>Mission:</strong> Find the key 🔑, collect the treasure 🏆, return to start!</p>
+                    <p>🎮 <strong>Controls:</strong> WASD or Arrow Keys</p>
+                    <p>⚠️ <strong>Beware:</strong> Red dragons 🐉 patrol the maze!</p>
+                    <p>💖 <strong>Health:</strong> 3 lives</p>
+                    <p>🏆 <strong>Scoring:</strong> Key +10, Treasure +50</p>
+                </div>
+                <button id="start-btn" class="game-btn primary">START ADVENTURE</button>
+            </div>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div class="game-ui">
+                <div class="ui-item">Score: <span id="score">0</span></div>
+                <div class="ui-item">Health: <span id="health">❤️❤️❤️</span></div>
+                <div class="ui-item">Key: <span id="key-status">❌</span></div>
+                <div class="ui-item">Treasure: <span id="treasure-status">❌</span></div>
+            </div>
+            <canvas id="game-canvas" width="800" height="600"></canvas>
+            <div class="game-controls">
+                <p>Use WASD or Arrow Keys to move</p>
+                <button id="menu-btn" class="game-btn secondary">Back to Menu</button>
+            </div>
+        </div>
+
+        <div id="win-screen" class="screen">
+            <div class="result-card win">
+                <h2>🏆 VICTORY! 🏆</h2>
+                <p>You successfully completed the adventure!</p>
+                <p>Final Score: <span id="final-score-win">0</span></p>
+                <div class="result-buttons">
+                    <button id="play-again-win" class="game-btn primary">Play Again</button>
+                    <button id="main-menu-win" class="game-btn secondary">Main Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="lose-screen" class="screen">
+            <div class="result-card lose">
+                <h2>💀 GAME OVER 💀</h2>
+                <p>The dragons got you!</p>
+                <p>Score: <span id="final-score-lose">0</span></p>
+                <div class="result-buttons">
+                    <button id="try-again" class="game-btn primary">Try Again</button>
+                    <button id="main-menu-lose" class="game-btn secondary">Main Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

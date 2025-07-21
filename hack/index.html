@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adventure - Ретро игра в стиле Atari</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🏰 ADVENTURE</h1>
+            <div class="stats">
+                <div class="score">Очки: <span id="score">0</span></div>
+                <div class="health">Здоровье: <span id="health">3</span>❤️</div>
+                <div class="inventory">
+                    <span id="hasKey" class="hidden">🔑</span>
+                    <span id="hasSword" class="hidden">⚔️</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-screen">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            
+            <div id="startScreen" class="overlay">
+                <div class="start-content">
+                    <h2>🏕️ ADVENTURE</h2>
+                    <p>Найди ключ 🔑, возьми сокровище 🏆 и вернись домой!</p>
+                    <p>Остерегайся драконов 🐉</p>
+                    <button id="startButton">START GAME</button>
+                </div>
+            </div>
+            
+            <div id="gameOverScreen" class="overlay hidden">
+                <div class="game-over-content">
+                    <h2 id="gameOverTitle">GAME OVER</h2>
+                    <p id="gameOverMessage"></p>
+                    <p>Финальный счёт: <span id="finalScore">0</span></p>
+                    <button id="restartButton">ИГРАТЬ СНОВА</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <p>Управление: WASD или стрелки ⬅️⬆️⬇️➡️</p>
+            <p>Пробел - атака мечом (если есть)</p>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+</body>
+</html>

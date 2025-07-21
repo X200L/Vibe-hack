@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ретро-хакатон Adventure</title>
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --dark-color: #27ae60;
+            --light-color: #ecf0f1;
+            --accent-color: #e74c3c;
+            --text-color: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Press Start 2P', cursive, Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-color);
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-image: radial-gradient(circle, #f0f0f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+            font-size: 2.2rem;
+        }
+        
+        .header {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border: 4px solid var(--text-color);
+        }
+        
+        .participants {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .participant {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 4px solid var(--text-color);
+            transition: transform 0.3s;
+        }
+        
+        .participant:hover {
+            transform: translateY(-5px);
+        }
+        
+        .participant h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 1.2rem;
+        }
+        
+        .game-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-family: 'Press Start 2P', cursive;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 2px solid var(--text-color);
+            box-shadow: 3px 3px 0 var(--text-color);
+        }
+        
+        .game-btn:hover {
+            background-color: var(--dark-color);
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 var(--text-color);
+        }
+        
+        .challenge {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 4px solid var(--text-color);
+        }
+        
+        .challenge h2 {
+            color: var(--accent-color);
+            margin-top: 0;
+        }
+        
+        .requirements {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .pixel-divider {
+            height: 4px;
+            background-color: var(--text-color);
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .pixel-divider:before {
+            content: "";
+            position: absolute;
+            top: -8px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <h1> Хакатон Ретро-игра "Adventure"</h1>
+    
+    <div class="header">
+        <h2>🎯 Задача участников</h2>
+        <p>Создать веб-игру в стиле классической Adventure (Atari, 1979) с упрощённой механикой</p>
+        
+        <div class="requirements">
+            <h3>📌 Основные требования:</h3>
+            <ul>
+                <li>2D-поле с лабиринтом</li>
+                <li>Управляемый персонаж</li>
+                <li>Ключ, сокровище и враги</li>
+                <li>Система очков и условие победы</li>
+            </ul>
+        </div>
+        
+        <p><strong>⏳ Время:</strong> 1 час<br>
+        <strong>👥 Формат:</strong> Индивидуально или в командах</p>
+    </div>
+    
+    <div class="pixel-divider"></div>
+    
+    <h2>Участники и их игры</h2>
+    
+    <div class="participants">
+        <div class="participant">
+            <h2>Участник 1</h2>
+            
+            <a href="https://vibecode-hack-game.onrender.com/" class="game-btn">Играть</a>
+        </div>
+        
+        <div class="participant">
+            <h2>Участник 2</h2>
+      
+            <a href="hack/index.html" class="game-btn">Играть</a>
+        </div>
+        
+        <div class="participant">
+            <h2>Участник 3</h2>
+
+            <a href="build/index.html" class="game-btn">Играть</a>
+        </div>
+        
+        <div class="participant">
+            <h2>Участник 4</h2>
+   
+            <a href="hahaton/index.html" class="game-btn">Играть</a>
+        </div>
+    </div>
+    
+    <div class="challenge">
+        <h2>⚙️ Технические требования</h2>
+        <p>Игра должна быть создана с использованием ИИ-инструментов. Ручное написание кода запрещено!</p>
+        
+        <div class="pixel-divider"></div>
+        
+        <h3>🏆 Критерии оценки:</h3>
+        <ul>
+            <li>Работоспособность</li>
+            <li>Ретро-стиль</li>
+            <li>Креативность</li>
+            <li>Чистота кода</li>
+            <li>Уникальные фичи</li>
+        </ul>
+    </div>
+</body>
+</html>

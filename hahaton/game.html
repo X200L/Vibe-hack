@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Adventure Game</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #000;
+      font-family: 'Courier New', monospace;
+      color: white;
+      touch-action: none;
+      overflow: hidden;
+    }
+
+    #game-container {
+      position: relative;
+      width: 640px;
+      max-width: 100%;
+      height: 480px;
+      border: 4px solid #333;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    }
+
+    canvas {
+      display: block;
+      background-color: #0a0a0a;
+    }
+
+    #start-screen {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 10;
+    }
+
+    #start-button {
+      padding: 15px 40px;
+      font-size: 24px;
+      background-color: #0f0;
+      color: black;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    #score-display {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 18px;
+      color: white;
+      z-index: 5;
+    }
+
+    .d-pad {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+      gap: 5px;
+      width: 120px;
+      height: 120px;
+      opacity: 0.7;
+      z-index: 5;
+    }
+
+    .d-pad button {
+      background-color: rgba(255, 255, 255, 0.3);
+      border: 1px solid white;
+      color: white;
+      font-size: 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .d-pad button:active {
+      background-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .up { grid-column: 2; grid-row: 1; }
+    .down { grid-column: 2; grid-row: 3; }
+    .left { grid-column: 1; grid-row: 2; }
+    .right { grid-column: 3; grid-row: 2; }
+
+    #win-screen {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 100, 0, 0.9);
+      z-index: 10;
+      color: gold;
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    #win-button {
+      margin-top: 20px;
+      padding: 10px 30px;
+      font-size: 20px;
+      background-color: gold;
+      color: black;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="game-canvas" width="640" height="480"></canvas>
+
+    <!-- Счёт -->
+    <div id="score-display">Очки: 0 | Ключ: ❌ | Сокровище: ❌</div>
+
+    <!-- Экран старта -->
+    <div id="start-screen">
+      <h1 style="color:#0f0;">ADVENTURE</h1>
+      <p>Найди 🔑, забери 🏆 и вернись домой!</p>
+      <button id="start-button">🎮 START</button>
+    </div>
+
+    <!-- Экран победы -->
+    <div id="win-screen">
+      ПОБЕДА!<br>Очки: <span id="final-score">0</span>
+      <button id="win-button">Играть снова</button>
+    </div>
+
+    <!-- Виртуальный D-Pad -->
+    <div class="d-pad">
+      <button class="d-pad up">⬆️</button>
+      <button class="d-pad down">⬇️</button>
+      <button class="d-pad left">⬅️</button>
+      <button class="d-pad right">➡️</button>
+    </div>
+  </div>
+
+  <script>
+    // Настройка canvas
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // Игровые переменные
+    let gameActive = false;
+    let score = 0;
+    let hasKey = false;
+    let hasTreasure = false;
+    let playerX = 60, playerY = 60;
+    const SIZE = 20;
+    const SPEED = 3;
+
+    // Враги
+    const enemies = [
+      { x: 200, y: 150, dx: 1, dy: 0, route: [{x:200,y:150}, {x:400,y:150}] },
+      { x: 400, y: 300, dx: 0, dy: -1, route: [{x:400,y:300}, {x:400,y:100}] }
+    ];
+
+    // Лабиринт (стены как [x, y, w, h])
+    const walls = [
+      [100, 100, 200, 20],
+      [300, 100, 20, 150],
+      [100, 230, 220, 20],
+      [400, 300, 100, 20],
+      [500, 200, 20, 120]
+    ];
+
+    // Объекты
+    const key = { x: 500, y: 100, collected: false };
+    const treasure = { x: 550, y: 400, collected: false };
+
+    // Звуки (простые генераторы)
+    function playSound(freq, duration = 0.1) {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+      oscillator.type = "square";
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      oscillator.start();
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+      oscillator.stop(audioContext.currentTime + duration);
+    }
+
+    // Ввод
+    const keys = {};
+    window.addEventListener('keydown', e => {
+      keys[e.key.toLowerCase()] = true;
+    });
+    window.addEventListener('keyup', e => {
+      keys[e.key.toLowerCase()] = false;
+    });
+
+    // Виртуальные кнопки
+    const dPadButtons = document.querySelectorAll('.d-pad button');
+    dPadButtons.forEach(btn => {
+      btn.addEventListener('touchstart', () => {
+        btn.classList.add('active');
+        const dir = btn.classList[1];
+        keys[dir] = true;
+      });
+      btn.addEventListener('touchend', () => {
+        btn.classList.remove('active');
+        const dir = btn.classList[1];
+        keys[dir] = false;
+      });
+    });
+
+    // Движение игрока
+    function movePlayer() {
+      let dx = 0, dy = 0;
+
+      if (keys['w'] || keys['arrowup'] || keys['up']) dy -= SPEED;
+      if (keys['s'] || keys['arrowdown'] || keys['down']) dy += SPEED;
+      if (keys['a'] || keys['arrowleft'] || keys['left']) dx -= SPEED;
+      if (keys['d'] || keys['arrowright'] || keys['right']) dx += SPEED;
+
+      // Нормализация диагонального движения
+      if (dx !== 0 && dy !== 0) {
+        dx *= 0.7;
+        dy *= 0.7;
+      }
+
+      // Проверка коллизий
+      if (!checkCollision(playerX + dx, playerY)) playerX += dx;
+      if (!checkCollision(playerX, playerY + dy)) playerY += dy;
+
+      // Ограничение границ
+      playerX = Math.max(0, Math.min(W - SIZE, playerX));
+      playerY = Math.max(0, Math.min(H - SIZE, playerY));
+    }
+
+    function checkCollision(x, y) {
+      for (const wall of walls) {
+        if (
+          x < wall[0] + wall[2] &&
+          x + SIZE > wall[0] &&
+          y < wall[1] + wall[3] &&
+          y + SIZE > wall[1]
+        ) return true;
+      }
+      return false;
+    }
+
+    // Логика объектов
+    function collectItems() {
+      if (!key.collected && !hasKey && dist(playerX, playerY, key.x, key.y) < SIZE) {
+        key.collected = true;
+        hasKey = true;
+        score += 10;
+        playSound(523); // C5
+        updateScore();
+      }
+
+      if (!treasure.collected && hasKey && !hasTreasure && dist(playerX, playerY, treasure.x, treasure.y) < SIZE) {
+        treasure.collected = true;
+        hasTreasure = true;
+        score += 50;
+        playSound(659); // E5
+        updateScore();
+      }
+
+      // Победа: вернуться в стартовую точку с сокровищем
+      if (hasTreasure && dist(playerX, playerY, 60, 60) < SIZE) {
+        endGame(true);
+      }
+    }
+
+    function dist(x1, y1, x2, y2) {
+      return Math.hypot(x1 - x2, y1 - y2);
+    }
+
+    // Движение врагов
+    function moveEnemies() {
+      enemies.forEach(enemy => {
+        enemy.x += enemy.dx;
+        enemy.y += enemy.dy;
+
+        // Проверка столкновения со стенами или выход за маршрут
+        let hitWall = false;
+        for (const wall of walls) {
+          if (
+            enemy.x < wall[0] + wall[2] &&
+            enemy.x + SIZE > wall[0] &&
+            enemy.y < wall[1] + wall[3] &&
+            enemy.y + SIZE > wall[1]
+          ) {
+            hitWall = true;
+            break;
+          }
+        }
+
+        // Простое патрулирование по двум точкам
+        const target = enemy.route[1];
+        const from = enemy.route[0];
+        if (Math.abs(enemy.x - target.x) < 5 && Math.abs(enemy.y - target.y) < 5) {
+          [enemy.dx, enemy.dy] = [-enemy.dx, -enemy.dy]; // разворот
+        } else if (hitWall) {
+          [enemy.dx, enemy.dy] = [-enemy.dx, -enemy.dy];
+        }
+
+        // Проверка столкновения с игроком
+        if (dist(playerX, playerY, enemy.x, enemy.y) < SIZE) {
+          playSound(200, 0.3);
+          alert("Тебя поймали! Игра окончена.");
+          endGame(false);
+        }
+      });
+    }
+
+    // Обновление счёта
+    function updateScore() {
+      document.getElementById('score-display').textContent = 
+        `Очки: ${score} | Ключ: ${hasKey ? '✅' : '❌'} | Сокровище: ${hasTreasure ? '✅' : '❌'}`;
+    }
+
+    // Отрисовка
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Фон
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(0, 0, W, H);
+
+      // Стены
+      ctx.fillStyle = '#666';
+      for (const wall of walls) {
+        ctx.fillRect(wall[0], wall[1], wall[2], wall[3]);
+      }
+
+      // Ключ
+      if (!key.collected) {
+        ctx.fillStyle = 'gold';
+        ctx.fillRect(key.x, key.y, SIZE, SIZE);
+        ctx.strokeStyle = '#ffcc00';
+        ctx.strokeRect(key.x, key.y, SIZE, SIZE);
+      }
+
+      // Сокровище
+      if (!treasure.collected) {
+        ctx.fillStyle = 'yellow';
+        ctx.beginPath();
+        ctx.arc(treasure.x + SIZE/2, treasure.y + SIZE/2, SIZE/2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'orange';
+        ctx.beginPath();
+        ctx.arc(treasure.x + SIZE/2, treasure.y + SIZE/2, SIZE/4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Игрок (с импровизированной "анимацией" мигания)
+      const pulse = Math.sin(Date.now() / 200) * 5;
+      ctx.fillStyle = '#0f0';
+      ctx.fillRect(playerX, playerY, SIZE + pulse, SIZE + pulse);
+      ctx.strokeStyle = '#fff';
+      ctx.strokeRect(playerX, playerY, SIZE, SIZE);
+
+      // Глазик (лицо)
+      ctx.fillStyle = 'black';
+      ctx.fillRect(playerX + 14, playerY + 8, 3, 3);
+
+      // Враги
+      enemies.forEach(enemy => {
+        ctx.fillStyle = '#f00';
+        ctx.beginPath();
+        ctx.arc(enemy.x + SIZE/2, enemy.y + SIZE/2, SIZE/2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.arc(enemy.x + SIZE/2, enemy.y + SIZE/2, SIZE/6, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Стартовая точка
+      ctx.strokeStyle = '#0f0';
+      ctx.setLineDash([5, 5]);
+      ctx.strokeRect(50, 50, 30, 30);
+      ctx.setLineDash([]);
+    }
+
+    // Главный цикл игры
+    function gameLoop() {
+      if (!gameActive) return;
+      movePlayer();
+      collectItems();
+      moveEnemies();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Запуск игры
+    function startGame() {
+      gameActive = true;
+      score = 0;
+      hasKey = false;
+      hasTreasure = false;
+      playerX = 60; playerY = 60;
+      key.collected = false;
+      treasure.collected = false;
+      enemies.forEach((e, i) => {
+        Object.assign(e, { x: e.route[0].x, y: e.route[0].y, dx: e.dx, dy: e.dy });
+      });
+      updateScore();
+      document.getElementById('start-screen').style.display = 'none';
+      document.getElementById('win-screen').style.display = 'none';
+      gameLoop();
+    }
+
+    // Завершение игры
+    function endGame(win) {
+      gameActive = false;
+      if (win) {
+        document.getElementById('final-score').textContent = score;
+        document.getElementById('win-screen').style.display = 'flex';
+      } else {
+        document.getElementById('start-screen').style.display = 'flex';
+      }
+    }
+
+    // Обработчики кнопок
+    document.getElementById('start-button').addEventListener('click', startGame);
+    document.getElementById('win-button').addEventListener('click', startGame);
+
+    // Инициализация: отрисовка начального экрана
+    draw();
+  </script>
+</body>
+</html>

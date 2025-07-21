@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Adventure Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="game-canvas" width="640" height="480"></canvas>
+
+    <div id="score-display">Очки: 0 | Ключ: ❌ | Сокровище: ❌</div>
+
+    <!-- Экран старта -->
+    <div id="start-screen">
+      <h1>ADVENTURE</h1>
+      <p>Найди 🔑, забери 🏆 и вернись домой!</p>
+      <button id="start-button">🎮 START</button>
+    </div>
+
+    <!-- Экран победы -->
+    <div id="win-screen">
+      ПОБЕДА!<br>Очки: <span id="final-score">0</span>
+      <button id="win-button">Играть снова</button>
+    </div>
+
+    <!-- Виртуальный D-Pad -->
+    <div class="d-pad">
+      <button class="dpad-up">⬆️</button>
+      <button class="dpad-down">⬇️</button>
+      <button class="dpad-left">⬅️</button>
+      <button class="dpad-right">➡️</button>
+    </div>
+  </div>
+
+  <!-- Подключаем скрипты -->
+  <script type="module">
+    import Game from './game.js';
+    import Level1 from './levels/level1.js';
+    import Level2 from './levels/level2.js';
+    import Level3 from './levels/level3.js';
+
+    // Глобальная переменная для управления игрой
+    let game;
+
+    document.getElementById('start-button').onclick = () => {
+      if (!game) game = new Game([Level1, Level2, Level3]);
+      game.start();
+    };
+
+    document.getElementById('win-button').onclick = () => {
+      game.start();
+    };
+  </script>
+</body>
+</html>
